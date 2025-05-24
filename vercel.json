@@ -1,13 +1,7 @@
 {
   "functions": {
     "api/generate.py": {
-      "runtime": "python3.9",
-      "maxDuration": 60
-    }
-  },
-  "build": {
-    "env": {
-      "PYTHONPATH": "."
+      "runtime": "python3.11"
     }
   }
 }
