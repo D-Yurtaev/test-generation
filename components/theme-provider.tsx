@@ -1,77 +1,19 @@
 "use client"
+import { ThemeProvider as NextThemesProvider } from "next-themes"
+import type { ThemeProviderProps } from "next-themes/dist/types"
+import type { Theme } from "next-themes/dist/types"
+import React from "react"
+import { useTheme } from "next-themes"
 
-import * as React from "react"
-
-type Theme = "dark" | "light" | "system"
-
-type ThemeProviderProps = {
-  children: React.ReactNode
-  defaultTheme?: Theme
-  storageKey?: string
-  attribute?: string
-  enableSystem?: boolean
-  disableTransitionOnChange?: boolean
-}
-
-type ThemeProviderState = {
-  theme: Theme
-  setTheme: (theme: Theme) => void
-}
-
-const initialState: ThemeProviderState = {
-  theme: "system",
-  setTheme: () => null,
-}
-
-const ThemeProviderContext = React.createContext<ThemeProviderState>(initialState)
-
-export function ThemeProvider({
-  children,
-  defaultTheme = "system",
-  storageKey = "vite-ui-theme",
-  ...props
-}: ThemeProviderProps) {
-  const [theme, setTheme] = React.useState<Theme>(defaultTheme)
+export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+  const { setTheme, storageKey } = useTheme()
 
   React.useEffect(() => {
-    const root = window.document.documentElement
-    root.classList.remove("light", "dark")
-
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light"
-      root.classList.add(systemTheme)
-      return
+    const storedTheme = localStorage.getItem(storageKey) as Theme
+    if (storedTheme) {
+      setTheme(storedTheme)
     }
+  }, [storageKey, setTheme])
 
-    root.classList.add(theme)
-  }, [theme])
-
-  const value = {
-    theme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme)
-      setTheme(theme)
-    },
-  }
-
-  return (
-    <ThemeProviderContext.Provider {...props} value={value}>
-      {children}
-    </ThemeProviderContext.Provider>
-  )
-}
-
-export const useTheme = () => {
-  const context = React.useContext(ThemeProviderContext)
-
-  if (context === undefined)
-    throw new Error("useTheme must be used within a ThemeProvider")
-
-  return context
-}
-
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>
 }
