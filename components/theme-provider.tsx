@@ -71,3 +71,7 @@ export const useTheme = () => {
 
   return context
 }
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  return <>{children}</>
+}
